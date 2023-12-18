@@ -1,7 +1,5 @@
 Inference code for DAT SPECT image analysis with uncertainty detection.
-For questions please contact
-    thomasbuddenkotte@googlemail.com
-    r.buchert@uke.de
+For questions please contact thomasbuddenkotte@googlemail.com or r.buchert@uke.de
 
 Publication: "Automated identification of uncertain cases in deep learning-based classification of dopamine transporter SPECT to improve clinical utility and acceptance"
 
