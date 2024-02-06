@@ -1,5 +1,7 @@
 Inference code for DAT SPECT image analysis using deep learning.
-The code covers the inferences of the models used in our publications (see below)
+
+The code covers the inferences of the models used in our publications (see below).
+
 For questions please contact thomasbuddenkotte@googlemail.com or r.buchert@uke.de
 
 # Publications:
