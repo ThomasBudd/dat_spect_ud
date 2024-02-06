@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.py
+dat_spect_ud/__init__.py
+dat_spect_ud/network_architecture.py
+dat_spect_ud/network_ensemble.py
+dat_spect_ud/preprocessing.py
+dat_spect_ud/robust_inference.py
+dat_spect_ud/ud_inference.py
+dat_spect_ud.egg-info/PKG-INFO
+dat_spect_ud.egg-info/SOURCES.txt
+dat_spect_ud.egg-info/dependency_links.txt
+dat_spect_ud.egg-info/requires.txt
+dat_spect_ud.egg-info/top_level.txt

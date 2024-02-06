@@ -137,39 +137,44 @@ class StackedResBlocks(nn.Module):
         
         return xb
     
-MODULE_KWARGS = [{'in_channels': 1,
-				  'out_channels': 16,
-				  'kernel_size_list': [(1, 3, 3), (1, 3, 3)],
-				  'first_stride': 1},
-			     {'in_channels': 16,
-				  'out_channels': 32,
-				  'kernel_size_list': [(1, 3, 3), (1, 3, 3)],
-				  'first_stride': (1, 3, 3)},
-			     {'in_channels': 32,
-				  'out_channels': 64,
-				  'kernel_size_list': [(1, 3, 3), (1, 3, 3), (1, 3, 3), (1, 3, 3)],
-				  'first_stride': (1, 3, 3)}]
-
 class customResNet(nn.Module):
     
-    def __init__(self):
+    def __init__(self, use_3d_convs=True):
         super().__init__()
+        self.use_3d_convs = use_3d_convs
         
         in_ch_list = [1, 16, 32]
         out_ch_list = [16, 32, 64]
-        ks_lists = [[(1, 3, 3), (1, 3, 3)], [(1, 3, 3), (1, 3, 3)], [(1, 3, 3), (1, 3, 3), (1, 3, 3), (1, 3, 3)]]
-        fs_list = [1, (1,3,3), (1,3,3)]
+        if use_3d_convs:
+            ks_lists = [[(1, 3, 3), (1, 3, 3)],
+                        [(1, 3, 3), (1, 3, 3)],
+                        [(1, 3, 3), (1, 3, 3), (1, 3, 3), (1, 3, 3)]]
+            fs_list = [1, (1,3,3), (1,3,3)]
+            conv = 'Conv3d'
+            norm = 'BatchNorm3d'
+        else:
+            ks_lists = [[(3, 3), (3, 3)],
+                        [(3, 3), (3, 3)],
+                        [(3, 3), (3, 3), (3, 3), (3, 3)]]
+            fs_list = [1, (3,3), (3,3)]
+            conv = 'Conv2d'
+            norm = 'BatchNorm2d'
         
         self.body = nn.ModuleList([StackedResBlocks(in_channels=in_ch,
                                                     out_channels=out_ch,
                                                     kernel_size_list=ks_list,
-                                                    first_stride=fs) 
+                                                    first_stride=fs,
+                                                    conv=conv,
+                                                    norm=norm) 
                                    for in_ch, out_ch, ks_list, fs in zip(in_ch_list, 
                                                                          out_ch_list,
                                                                          ks_lists,
                                                                          fs_list)])
-    
-        self.logits = torch.nn.Linear(in_features=64, out_features=2)    
+        
+        if self.use_3d_convs:
+            self.logits = torch.nn.Linear(in_features=64, out_features=2)  
+        else:
+            self.logits = torch.nn.Conv2d(in_channels=64, out_channels=1, kernel_size=1)
 
         
     def forward(self, xb):
@@ -177,6 +182,14 @@ class customResNet(nn.Module):
         for module in self.body:
             xb = module(xb)
     
-        bs, nch = xb.shape[:2]
-        xb = xb.view(bs,nch,-1).max(dim=-1)[0]     
-        return self.logits(xb)
+        if self.use_3d_convs:
+            bs, nch = xb.shape[:2]
+            xb = xb.view(bs,nch,-1).max(dim=-1)[0]     
+            return self.logits(xb)
+        else:
+            xb = self.logits(xb)
+            
+            bs, nch = xb.shape[:2]
+            xb = xb.view(bs,nch,-1).max(dim=-1)[0]
+            # do this only for sigmoid
+            return xb[:, 0]
