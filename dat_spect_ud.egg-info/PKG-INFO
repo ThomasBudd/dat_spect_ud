@@ -1,8 +1,12 @@
 Metadata-Version: 2.1
-Name: dat-spect-ud
+Name: dat_spect_ud
 Version: 1.0
 Summary: inference code for uncertainty detection on DAT SPECT images
 Home-page: https://https://github.com/ThomasBudd/dat_spect_ud
 Author: Thomas Buddenkotte
 Author-email: thomasbuddenkotte@googlemail.com
 License-File: LICENSE
+Requires-Dist: torch>=1.7.0
+Requires-Dist: tqdm
+Requires-Dist: nibabel
+Requires-Dist: pandas

@@ -193,3 +193,62 @@ class customResNet(nn.Module):
             xb = xb.view(bs,nch,-1).max(dim=-1)[0]
             # do this only for sigmoid
             return xb[:, 0]
+
+
+class MultiClassificationHead(nn.Module):
+    
+    def __init__(self,
+                 in_features=64,
+                 n_classifications=4,
+                 n_labels=5):
+        super().__init__()
+        self.in_features = in_features
+        self.n_classifications = n_classifications
+        self.n_labels = n_labels
+        
+        self.out_features = self.n_classifications * self.n_labels
+        
+        self.linear = nn.Linear(self.in_features,
+                                self.out_features)
+        
+    def forward(self, xb):
+        
+        xb = xb.flatten(2).mean(2)
+        xb = self.linear(xb)
+        xb = xb.view((-1, self.n_classifications, self.n_labels))
+        
+        return xb
+
+
+class customResNetRegional(nn.Module):
+    
+    def __init__(self):
+        super().__init__()
+        
+        in_ch_list = [1, 16, 32]
+        out_ch_list = [16, 32, 64]
+        ks_lists = [[(3, 3), (3, 3)],
+                    [(3, 3), (3, 3)],
+                    [(3, 3), (3, 3), (3, 3), (3, 3)]]
+        fs_list = [1, (3,3), (3,3)]
+        conv = 'Conv2d'
+        norm = 'BatchNorm2d'
+        
+        modules = [StackedResBlocks(in_channels=in_ch,
+                                                    out_channels=out_ch,
+                                                    kernel_size_list=ks_list,
+                                                    first_stride=fs,
+                                                    conv=conv,
+                                                    norm=norm) 
+                                   for in_ch, out_ch, ks_list, fs in zip(in_ch_list, 
+                                                                         out_ch_list,
+                                                                         ks_lists,
+                                                                         fs_list)]
+        modules.append(MultiClassificationHead())
+        
+        
+        self.seq = nn.Sequential(*modules)
+        
+    def forward(self, xb):
+        return self.seq(xb)
+

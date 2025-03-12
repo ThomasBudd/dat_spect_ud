@@ -5,6 +5,7 @@ dat_spect_ud/__init__.py
 dat_spect_ud/network_architecture.py
 dat_spect_ud/network_ensemble.py
 dat_spect_ud/preprocessing.py
+dat_spect_ud/regional_inference.py
 dat_spect_ud/robust_inference.py
 dat_spect_ud/ud_inference.py
 dat_spect_ud.egg-info/PKG-INFO

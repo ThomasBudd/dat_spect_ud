@@ -5,9 +5,11 @@ import torch
 
 class Preprocessing():
     
-    def __init__(self):
-        self.window = [0, 6.5]
-        self.scaling = [0.6048597782240399, 0.6051688035793145]
+    def __init__(self,
+                 window=[0, 6.5],
+                 scaling = [0.6048597782240399, 0.6051688035793145]):
+        self.window = window
+        self.scaling = scaling
         self.crop_coords = [0, 1, 9, 81, 29, 101]
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
@@ -23,7 +25,8 @@ class Preprocessing():
         while xb.ndim < 5:
             xb = xb.unsqueeze(0)
         
-        xb = xb.clip(*self.window)
+        if self.window is not None:
+            xb = xb.clip(*self.window)
         xb = (xb - self.scaling[0]) / self.scaling[1]
         
         # crop to striatum
